@@ -15,14 +15,20 @@
     settings: 'mct.settings',
   };
 
-  // 40 hours × 52 weeks. Nobody actually works exactly this, which is the point.
-  const HOURS_PER = { year: 2080, month: 2080 / 12, hour: 1 };
+  // Official RU working-time norm for 2026 (производственный календарь, 40-hour week): 1972 hours, ≈164.3 a month.
+  const WORK_HOURS_PER_YEAR = 1972;
+  const HOURS_PER = { year: WORK_HOURS_PER_YEAR, month: WORK_HOURS_PER_YEAR / 12, hour: 1 };
+
+  // People enter take-home pay («на руки»). The company also pays the 13% НДФЛ withheld from it,
+  // so the salary it actually spends is take-home ÷ 0.87.
+  const NDFL_RATE = 0.13;
+  const grossOf = (takeHome) => takeHome / (1 - NDFL_RATE);
   const UNIT_LABEL = { year: '/год', month: '/мес', hour: '/час' };
   const AVATAR_COLORS = ['#ff5ca8', '#ffd93d', '#b8f04a', '#4fd8ff', '#ff8c42', '#9b7bff'];
   const RAIN = ['💸', '💵', '💰', '🪙', '🔥', '💸', '💶', '💷'];
 
   // Employer's insurance contributions on top of gross salary (RU general rate): 30% + 0.2% injury insurance.
-  // Personal income tax (НДФЛ) is already inside the gross salary, so it is not added again.
+  // НДФЛ is already added back into the salary counter (see grossOf), so it is not counted here again.
   const DEFAULT_TAX_RATE = 30.2;
 
   // Rough units of each currency per 1 USD. Only used to scale the jokes
@@ -173,7 +179,7 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const PAGE_TITLE = document.title;
 
-  const hourlyOf = (p) => (Number.isFinite(p.hourly) ? p.hourly : p.salary / HOURS_PER[p.unit]);
+  const hourlyOf = (p) => (Number.isFinite(p.hourly) ? p.hourly : grossOf(p.salary) / HOURS_PER[p.unit]);
   const burnPerHour = (people) => people.reduce((sum, p) => sum + hourlyOf(p), 0);
   const costFor = (people, ms) => (burnPerHour(people) * ms) / 3.6e6;
   const personHours = (m) => (m.durationMs * m.people.length) / 3.6e6;
@@ -339,7 +345,7 @@
       <span class="avatar" style="background:${colorFor(p.name)}" aria-hidden="true">${esc(initials(p.name))}</span>
       <span class="person__info">
         <span class="person__name">${esc(p.name)}</span>
-        <span class="person__pay">${pay} · ${perMin}/мин</span>
+        <span class="person__pay">${pay} на руки · ${perMin}/мин</span>
       </span>
       ${button}
     </li>`;

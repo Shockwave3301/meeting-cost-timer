@@ -64,7 +64,7 @@
         <h3 class="sub"><span class="badge badge--cyan">Шаг 2</span> Собираем жертв</h3>
         <form id="add-person" class="add-person" autocomplete="off" novalidate>
           <input name="name" type="text" placeholder="Имя, напр. Дима" maxlength="40" required aria-label="Имя участника">
-          <input name="salary" type="number" min="0" step="any" inputmode="decimal" placeholder="Зарплата" required aria-label="Зарплата">
+          <input name="salary" type="number" min="0" step="any" inputmode="decimal" placeholder="На руки" required aria-label="Зарплата на руки">
           <select name="unit" aria-label="За какой период зарплата">
             <option value="month">в месяц</option>
             <option value="year">в год</option>
@@ -88,7 +88,7 @@
             <input id="tax-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="tax-hint tax-preview">
             <span aria-hidden="true">%</span>
           </div>
-          <p class="tax-row__hint"><span id="tax-hint">Страховые взносы работодателя: 30% + 0,2% «на травматизм» (у IT-аккредитованных — 7,6%). Зарплаты вводите «грязными», до НДФЛ. Налоги считаются отдельным счётчиком и в основной не входят.</span> <strong id="tax-preview"></strong></p>
+          <p class="tax-row__hint"><span id="tax-hint">Страховые взносы работодателя: 30% + 0,2% «на травматизм» (у IT-аккредитованных — 7,6%). Считаются отдельным счётчиком и в основной не входят. А НДФЛ 13% мы уже сами добавили к зарплатам на руки — он в основном счётчике.</span> <strong id="tax-preview"></strong></p>
         </div>
 
         <button type="button" id="start-btn" class="btn btn--start" disabled>🔥 Начать жечь деньги</button>
@@ -188,8 +188,8 @@
   </main>
 
   <footer class="footer">
-    <p><strong>Как считаем:</strong> месячная зарплата ÷ 173,3 рабочих часа (годовая ÷ 2080) = стоимость часа каждого участника. Складываем всех, умножаем на время, ушедшее на «синхронизацию». Плачем.</p>
-    <p><strong>Налоги</strong> — отдельный счётчик: страховые взносы, которые компания платит сверху зарплаты (по умолчанию 30,2%, ставку можно поменять). НДФЛ уже сидит внутри «грязной» зарплаты, поэтому второй раз его не считаем.</p>
+    <p><strong>Как считаем:</strong> зарплата на руки ÷ 0,87 (возвращаем НДФЛ 13%, его тоже платит компания) = «грязная» зарплата. Месячную делим на 164,3 рабочих часа, годовую — на 1972 (норма по производственному календарю на 2026 год при 40-часовой неделе). Получаем стоимость часа каждого участника, складываем всех и умножаем на время, ушедшее на «синхронизацию». Плачем.</p>
+    <p><strong>Налоги</strong> — отдельный счётчик: страховые взносы, которые компания платит сверху «грязной» зарплаты (по умолчанию 30,2%, ставку можно поменять). НДФЛ уже сидит в основном счётчике, поэтому второй раз его не считаем.</p>
     <p>Всё хранится в localStorage вашего браузера. Данные никуда не уходят с этого устройства — в отличие от вашей воли к жизни на квартальном планировании.</p>
   </footer>
 
@@ -205,7 +205,7 @@
         <tbody id="r-lines"></tbody>
       </table>
       <hr>
-      <div class="receipt__row"><span>Сожжено на зарплаты</span><span id="r-salaries"></span></div>
+      <div class="receipt__row"><span>Зарплаты (с НДФЛ)</span><span id="r-salaries"></span></div>
       <div class="receipt__row" id="r-tax-row"><span id="r-tax-label">Налоги и взносы</span><span id="r-tax"></span></div>
       <div class="receipt__total"><span>ИТОГО ДЛЯ КОМПАНИИ</span><strong id="r-total"></strong></div>
       <div class="receipt__row"><span>Потеряно человеко-часов</span><span id="r-hours"></span></div>
