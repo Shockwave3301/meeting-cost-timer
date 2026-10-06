@@ -2,6 +2,8 @@
 
 Watch your company's money evaporate in real time.
 
+**Live:** https://shockwave3301.github.io/meeting-cost-timer/
+
 Add the people in the meeting and what they earn, hit the big pink button, and watch a gas-pump-style counter tick up while money rains down the screen. When it's finally over, you get a **Receipt of Shame**.
 
 ## Features
@@ -28,7 +30,9 @@ It's plain HTML, CSS and JS: no build step, no dependencies. Open `index.html` i
 npx serve .
 ```
 
-It also works as-is on GitHub Pages.
+## Deployment
+
+`.github/workflows/pages.yml` publishes `index.html`, `styles.css` and `app.js` to GitHub Pages on every push to the default branch (it can also be run by hand from the Actions tab). One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
 ## Privacy
 
