@@ -5,6 +5,8 @@
      Config & comedy material
      ========================================================== */
 
+  const LOCALE = 'ru-RU';
+
   const KEYS = {
     roster: 'mct.roster',
     meetings: 'mct.meetings',
@@ -15,79 +17,92 @@
 
   // 40 hours × 52 weeks. Nobody actually works exactly this, which is the point.
   const HOURS_PER = { year: 2080, month: 2080 / 12, hour: 1 };
-  const UNIT_LABEL = { year: '/yr', month: '/mo', hour: '/hr' };
+  const UNIT_LABEL = { year: '/год', month: '/мес', hour: '/час' };
   const AVATAR_COLORS = ['#ff5ca8', '#ffd93d', '#b8f04a', '#4fd8ff', '#ff8c42', '#9b7bff'];
   const RAIN = ['💸', '💵', '💰', '🪙', '🔥', '💸', '💶', '💷'];
 
+  // Rough units of each currency per 1 USD. Only used to scale the jokes
+  // (milestones, price comparisons, verdicts), never the actual meeting cost.
+  const PER_USD = { RUB: 90, USD: 1, EUR: 0.9, KZT: 500, BYN: 3.2, CNY: 7.2, GBP: 0.78, CHF: 0.88, JPY: 150 };
+  const fromRub = (rub) => (rub / PER_USD.RUB) * (PER_USD[state.settings.currency] ?? 1);
+
   const QUIPS = [
-    'Waiting for someone to unmute…',
-    '"Can everyone see my screen?"',
-    '"Let\'s take this offline." (Narrator: they did not.)',
-    '"Just to piggyback on that…"',
-    'Circling back to the thing we already circled back to.',
-    '"Sorry, you go." "No, you go." "No, you go."',
-    'Someone is definitely answering emails right now.',
-    '"Let\'s put a pin in that." 📌',
-    'Synergizing the deliverables…',
-    '"Quick question" — it is neither quick nor a question.',
-    'Aligning on the alignment.',
-    '"I\'ll keep this brief." — famous last words',
-    'Somebody\'s dog has joined the call. 🐕',
-    '"Per my last email…"',
-    'Scheduling a follow-up meeting to discuss this meeting.',
-    '"You\'re on mute."',
-    'Leveraging core competencies at scale.',
-    'Someone just said "bandwidth" unironically.',
-    'The real agenda was the friends we made along the way.',
-    '"Let\'s give people 5 more minutes to join."',
-    '"Can you hear me now?"',
-    'One person is talking. Nine people are muted and suffering.',
-    '"This is a great question for the parking lot." 🅿️',
-    '"Let\'s double-click on that."',
-    'Somewhere, an email that would have taken 2 minutes weeps.',
-    '"Sorry, I was on mute. As I was saying…"',
-    '"We\'re at time, but just one more thing…"',
-    'Moving the needle. Boiling the ocean. Peeling the onion.',
+    'Ждём, пока кто-нибудь включит микрофон…',
+    '«Вам видно мой экран?»',
+    '«Давайте обсудим это отдельно». (Спойлер: не обсудят.)',
+    '«Я тут дополню коллегу…»',
+    'Возвращаемся к вопросу, к которому уже возвращались.',
+    '«Извините, говорите». — «Нет, вы говорите». — «Нет, вы…»',
+    'Кто-то прямо сейчас отвечает на почту. Точно.',
+    '«Давайте это запаркуем». 📌',
+    'Синергия деливерблов в процессе…',
+    '«Быстрый вопрос» — не быстрый и не вопрос.',
+    'Синхронизируемся по поводу синхронизации.',
+    '«Я коротко». — знаменитые последние слова',
+    'К созвону подключилась чья-то собака. 🐕',
+    '«Как я уже писал в письме…»',
+    'Планируем встречу, чтобы обсудить эту встречу.',
+    '«У вас микрофон выключен».',
+    '«Меня слышно?»',
+    'Кто-то только что сказал «зафоллоуапить» без тени иронии.',
+    'Один говорит. Девять сидят на мьюте и страдают.',
+    '«Давайте подождём ещё пять минут, пока все подключатся».',
+    'Где-то плачет письмо, на которое ушло бы две минуты.',
+    '«Мы уже по времени, но ещё буквально одно…»',
+    '«Давайте сделаем ресёрч и вернёмся с фидбеком».',
+    '«Коллеги, давайте не растекаться по древу».',
+    '«Кто ведёт протокол?» Тишина.',
+    '«Пошарь экран». — «Какой из?»',
+    'Обсуждаем, кто будет ответственным за ответственность.',
+    'Мог быть письмом. Письмо могло быть сообщением в чатике. Сообщения могло не быть.',
   ];
 
   const PAUSE_QUIPS = [
-    '⏸ Paused. The salaries, sadly, are not.',
-    '⏸ Bio break. Everyone is checking their phone.',
-    '⏸ "Let\'s take five." It will be fifteen.',
+    '⏸ Пауза. Зарплаты, увы, на паузу не ставятся.',
+    '⏸ Перерыв. Все уткнулись в телефоны.',
+    '⏸ «Давайте пять минут». Будет пятнадцать.',
   ];
 
-  // [threshold, message] — currency-agnostic, because pain is universal.
+  // [threshold in ₽, message] — converted to the chosen currency at runtime.
   const MILESTONES = [
-    [10, 'Coffee money: gone. ☕'],
-    [50, 'That was a team lunch. Just saying. 🌯'],
-    [100, 'Achievement unlocked: Could\'ve Been An Email 📧'],
-    [250, 'Somebody\'s bonus just flinched.'],
-    [500, 'Finance has been notified. 🚨'],
-    [1000, 'FOUR DIGITS. The CFO felt a disturbance in the force.'],
-    [2500, 'This meeting now costs more than the intern. 🧑‍🎓'],
-    [5000, 'Congrats, you\'ve funded a used car. 🚗'],
-    [10000, 'Please. Stop. 🙏'],
-    [25000, 'This is no longer a meeting. It\'s a lifestyle.'],
-    [100000, 'You could have bought a house. A small one. In a field. 🏚️'],
+    [500, 'Минус кофе для всего отдела. ☕'],
+    [2000, 'Это был бизнес-ланч на четверых. Просто к сведению. 🍱'],
+    [5000, 'Достижение разблокировано: «Можно было письмом» 📧'],
+    [15000, 'Чья-то квартальная премия нервно вздрогнула.'],
+    [50000, 'Бухгалтерия уже в курсе. 🚨'],
+    [100000, 'Финдиректор почувствовал возмущение в Силе.'],
+    [250000, 'Этот созвон уже обошёлся дороже стажёра. 🧑‍🎓'],
+    [900000, 'Поздравляем, вы профинансировали подержанный «Солярис». 🚗'],
+    [2000000, 'Пожалуйста. Остановитесь. 🙏'],
+    [4000000, 'Это уже не созвон. Это образ жизни.'],
+    [8000000, 'На эти деньги можно было взять однушку в Подмосковье. 🏚️'],
   ];
 
-  // Sorted by price, ascending.
+  // Prices in ₽, ascending. Forms: [one, few, many, fraction] — fraction defaults to `few`.
   const THINGS = [
-    { emoji: '🦆', name: 'rubber ducks', price: 2 },
-    { emoji: '☕', name: 'oat-milk lattes', price: 6 },
-    { emoji: '🥑', name: 'avocado toasts', price: 14 },
-    { emoji: '🍕', name: 'large pizzas', price: 22 },
-    { emoji: '🎮', name: 'video games', price: 70 },
-    { emoji: '🎧', name: 'noise-cancelling headphones', price: 350 },
-    { emoji: '🪑', name: 'ergonomic chairs', price: 900 },
-    { emoji: '🏝️', name: 'beach vacations', price: 2500 },
-    { emoji: '🚗', name: 'used Honda Civics', price: 12000 },
-    { emoji: '🏠', name: 'tiny houses', price: 60000 },
+    { emoji: '🌻', price: 80, forms: ['пачка семечек', 'пачки семечек', 'пачек семечек'] },
+    { emoji: '☕', price: 350, forms: ['раф на кокосовом', 'рафа на кокосовом', 'рафов на кокосовом'] },
+    { emoji: '🌯', price: 400, forms: ['шаурма', 'шаурмы', 'шаурм'] },
+    { emoji: '🍱', price: 650, forms: ['бизнес-ланч', 'бизнес-ланча', 'бизнес-ланчей'] },
+    { emoji: '🍕', price: 1000, forms: ['пицца', 'пиццы', 'пицц'] },
+    { emoji: '🚕', price: 3000, forms: ['поездка в аэропорт на такси', 'поездки в аэропорт на такси', 'поездок в аэропорт на такси'] },
+    { emoji: '🪑', price: 45000, forms: ['эргономичное кресло', 'эргономичных кресла', 'эргономичных кресел', 'эргономичного кресла'] },
+    { emoji: '🏖️', price: 150000, forms: ['путёвка в Турцию', 'путёвки в Турцию', 'путёвок в Турцию'] },
+    { emoji: '🚗', price: 900000, forms: ['подержанный «Солярис»', 'подержанных «Соляриса»', 'подержанных «Солярисов»', 'подержанного «Соляриса»'] },
+    { emoji: '🏠', price: 8000000, forms: ['однушка в Подмосковье', 'однушки в Подмосковье', 'однушек в Подмосковье'] },
   ];
 
-  const TITLE_A = ['Quick', 'Urgent', 'Mandatory', 'Optional (Not Really)', 'Weekly', 'Emergency', 'Recurring', 'Cross-Functional', 'Pre-', 'Post-', 'Strategic', 'Casual'];
-  const TITLE_B = ['Sync', 'Alignment', 'Touch Base', 'Brainstorm', 'Deep Dive', 'Stand-up (Sitting Down)', 'Retro', 'Huddle', 'All-Hands', 'Kickoff', 'Check-in', 'Jam Session'];
-  const TITLE_C = ['About the Other Meeting', 'on Synergy', 're: Q3 Vibes', 'Before the Real Meeting', 'to Plan the Offsite', 'That Could Be an Email', '(Cameras On 📸)', 'With No Agenda', 'Part 7', 'on Meeting Fatigue', 'About the Font on Slide 3', 'to Discuss Next Steps on Next Steps'];
+  const WORDS = {
+    meeting: ['встреча', 'встречи', 'встреч'],
+    victim: ['жертва', 'жертвы', 'жертв'],
+    human: ['человек', 'человека', 'человек'],
+    crime: ['преступление', 'преступления', 'преступлений'],
+  };
+
+  // Adjective + masculine noun + tail, e.g. «Срочный синк про синергию».
+  const TITLE_A = ['Быстрый', 'Срочный', 'Обязательный', 'Необязательный (но приходите)', 'Еженедельный', 'Экстренный', 'Регулярный', 'Кросс-функциональный', 'Стратегический', 'Короткий (на час)', 'Внеплановый', 'Финальный (ещё не финальный)'];
+  const TITLE_B = ['созвон', 'синк', 'брейншторм', 'дейлик', 'статус', 'разбор полётов', 'митинг', 'стендап (сидя)', 'кикофф', 'чек-ин', 'груминг', 'воркшоп'];
+  const TITLE_C = ['по поводу другого созвона', 'про синергию', 'по итогам квартала', 'перед настоящей встречей', 'про корпоратив', 'который мог быть письмом', '(с камерами 📸)', 'без повестки', 'часть 7', 'про усталость от созвонов', 'про шрифт на третьем слайде', 'о следующих шагах по следующим шагам'];
 
   /* ==========================================================
      Storage
@@ -126,7 +141,7 @@
       people: asArray(savedDraft.people).filter(isPerson),
     },
     active: savedActive && Array.isArray(savedActive.people) && savedActive.people.length ? savedActive : null,
-    settings: { currency: 'USD', group: 'day', metric: 'money', ...(store.get(KEYS.settings, {}) || {}) },
+    settings: { currency: 'RUB', group: 'day', metric: 'money', ...(store.get(KEYS.settings, {}) || {}) },
   };
 
   const save = {
@@ -145,6 +160,7 @@
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const norm = (name) => name.trim().toLowerCase();
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const esc = (s) =>
     String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -161,9 +177,9 @@
       const base = { minimumFractionDigits: 2, maximumFractionDigits: 2, ...opts };
       let f;
       try {
-        f = new Intl.NumberFormat(undefined, { style: 'currency', currency: state.settings.currency, ...base });
+        f = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: state.settings.currency, ...base });
       } catch {
-        f = new Intl.NumberFormat(undefined, base);
+        f = new Intl.NumberFormat(LOCALE, base);
       }
       formatters.set(key, f);
     }
@@ -171,7 +187,7 @@
   }
   const moneyWhole = (n) => money(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const moneyCompact = (n) => money(n, { notation: 'compact', minimumFractionDigits: 0, maximumFractionDigits: 1 });
-  const num = (n, digits = 0) => n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  const num = (n, digits = 0) => n.toLocaleString(LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
   function clock(ms) {
     const s = Math.floor(ms / 1000);
@@ -180,18 +196,24 @@
 
   function duration(ms) {
     const s = Math.round(ms / 1000);
-    if (s < 60) return `${s}s`;
+    if (s < 60) return `${s} с`;
     const m = Math.floor(s / 60);
-    if (m < 60) return `${m}m ${s % 60}s`;
-    return `${Math.floor(m / 60)}h ${m % 60}m`;
+    if (m < 60) return `${m} мин ${s % 60} с`;
+    return `${Math.floor(m / 60)} ч ${m % 60} мин`;
   }
 
   function humanHours(h) {
-    if (h < 1) return `${Math.round(h * 60)} human-min`;
-    return `${num(h, 1)} human-hrs`;
+    if (h < 1) return `${Math.round(h * 60)} чел.-мин`;
+    return `${num(h, 1)} чел.-ч`;
   }
 
-  const plural = (n, word, many = word + 's') => `${num(n)} ${n === 1 ? word : many}`;
+  // Russian has three plural forms (1 встреча, 2 встречи, 5 встреч), plus fractions (2,5 встречи).
+  const pluralRules = new Intl.PluralRules(LOCALE);
+  function word(n, [one, few, many, fraction = few]) {
+    if (!Number.isInteger(n)) return fraction;
+    return { one, few, many }[pluralRules.select(n)] ?? many;
+  }
+  const plural = (n, forms) => `${num(n)} ${word(n, forms)}`;
 
   function initials(name) {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -206,27 +228,28 @@
   }
 
   function randomTitle() {
-    const a = pick(TITLE_A);
-    const glue = a.endsWith('-') ? '' : ' ';
-    return `${a}${glue}${pick(TITLE_B)} ${pick(TITLE_C)}`;
+    return `${pick(TITLE_A)} ${pick(TITLE_B)} ${pick(TITLE_C)}`;
   }
 
-  // "≈ 3.4 🍕 large pizzas" — picks the priciest thing we can afford at least one of.
+  // "🌯 3,4 шаурмы" — picks the priciest thing we can afford at least one of.
   function equivalents(cost, howMany = 1) {
-    const affordable = THINGS.filter((t) => cost >= t.price).reverse();
+    const affordable = THINGS.filter((t) => cost >= fromRub(t.price)).reverse();
     return affordable.slice(0, howMany).map((t) => {
-      const n = cost / t.price;
-      return `${t.emoji} ${n < 10 ? num(n, 1) : num(Math.floor(n))} ${t.name}`;
+      const n = cost / fromRub(t.price);
+      const shown = n < 10 ? Math.floor(n * 10) / 10 : Math.floor(n);
+      const label = n < 10 ? num(shown, 1) : num(shown);
+      // "3,0 шаурмы" is still read as a fraction, so anything under 10 takes the fraction form.
+      return `${t.emoji} ${label} ${n < 10 ? word(0.5, t.forms) : word(shown, t.forms)}`;
     });
   }
 
   function verdict(m) {
-    if (m.durationMs < 60e3) return 'Under a minute?! Suspiciously efficient. HR has been alerted.';
-    if (m.cost < 25) return 'Mostly harmless. Could have been a Slack message.';
-    if (m.cost < 100) return 'Verdict: this could have been an email.';
-    if (m.cost < 500) return 'Verdict: this could have been an email. A short one. With bullet points.';
-    if (m.cost < 2000) return 'Verdict: this could have been a PTO day for everyone involved.';
-    return 'This meeting has been reported to the authorities. 🚔';
+    if (m.durationMs < 60e3) return 'Меньше минуты?! Подозрительно эффективно. HR уже выехал.';
+    if (m.cost < fromRub(2000)) return 'В целом безобидно. Можно было написать в чатик.';
+    if (m.cost < fromRub(8000)) return 'Вердикт: это можно было письмом.';
+    if (m.cost < fromRub(40000)) return 'Вердикт: это можно было коротким письмом. С буллетами.';
+    if (m.cost < fromRub(150000)) return 'Вердикт: на эти деньги весь отдел мог взять отгул.';
+    return 'Об этом созвоне сообщено куда следует. 🚔';
   }
 
   /* ==========================================================
@@ -286,16 +309,16 @@
     const perMin = money(hourlyOf(p) / 60);
     const button =
       action === 'remove'
-        ? `<button type="button" class="chip-btn chip-btn--remove" data-remove="${esc(p.id)}" aria-label="Remove ${esc(p.name)} from the meeting" title="Set them free">✕</button>`
+        ? `<button type="button" class="chip-btn chip-btn--remove" data-remove="${esc(p.id)}" aria-label="Убрать ${esc(p.name)} со встречи" title="Отпустить на волю">✕</button>`
         : inMeeting
-          ? `<span class="person__tag">In the room</span>`
-          : `<button type="button" class="chip-btn chip-btn--add" data-add="${esc(p.id)}" aria-label="Add ${esc(p.name)} to the meeting" title="Drag them in" ${disabled ? 'disabled' : ''}>+</button>
-             <button type="button" class="chip-btn chip-btn--remove" data-forget="${esc(p.id)}" aria-label="Forget ${esc(p.name)}" title="Forget forever">✕</button>`;
+          ? `<span class="person__tag">Уже тут</span>`
+          : `<button type="button" class="chip-btn chip-btn--add" data-add="${esc(p.id)}" aria-label="Добавить ${esc(p.name)} на встречу" title="Затащить на созвон" ${disabled ? 'disabled' : ''}>+</button>
+             <button type="button" class="chip-btn chip-btn--remove" data-forget="${esc(p.id)}" aria-label="Забыть ${esc(p.name)}" title="Забыть навсегда">✕</button>`;
     return `<li class="person${inMeeting ? ' is-in' : ''}" data-id="${esc(p.id)}">
       <span class="avatar" style="background:${colorFor(p.name)}" aria-hidden="true">${esc(initials(p.name))}</span>
       <span class="person__info">
         <span class="person__name">${esc(p.name)}</span>
-        <span class="person__pay">${pay} · ${perMin}/min</span>
+        <span class="person__pay">${pay} · ${perMin}/мин</span>
       </span>
       ${button}
     </li>`;
@@ -311,7 +334,7 @@
     els.previewMinute.textContent = people.length ? money(perHour / 60) : '—';
     els.previewHour.textContent = people.length ? moneyWhole(perHour) : '—';
     els.previewCount.textContent = num(people.length);
-    els.previewCountNote.textContent = people.length === 1 ? 'human (talking to themself?)' : 'humans';
+    els.previewCountNote.textContent = people.length === 1 ? 'человек (говорит сам с собой?)' : word(people.length, WORDS.human);
     els.start.disabled = people.length === 0;
   }
 
@@ -370,7 +393,7 @@
     const unit = form.elements.unit.value;
     if (!name) return form.elements.name.focus();
     if (!Number.isFinite(salary) || salary <= 0) {
-      form.elements.salary.setCustomValidity('Everyone gets paid something. Even interns. (Usually.)');
+      form.elements.salary.setCustomValidity('Всем что-то платят. Даже стажёрам. (Обычно.)');
       form.elements.salary.reportValidity();
       return;
     }
@@ -401,7 +424,7 @@
       if (p) addToDraft(p, { flash: false });
     } else if (forget) {
       const p = state.roster.find((r) => r.id === forget.dataset.forget);
-      if (!p || !confirm(`Forget ${p.name} forever? They'll never know. Or will they?`)) return;
+      if (!p || !confirm(`Забыть «${p.name}» навсегда? Никто не узнает. Наверное.`)) return;
       state.roster = state.roster.filter((r) => r.id !== p.id);
       save.roster();
       renderRoster();
@@ -477,7 +500,7 @@
 
   function discardMeeting() {
     if (!state.active) return;
-    if (!confirm("Abort this meeting without saving? The money is still gone — we just won't talk about it.")) return;
+    if (!confirm('Отменить встречу без сохранения? Деньги всё равно потрачены — просто не будем об этом.')) return;
     leaveLive();
   }
 
@@ -520,8 +543,8 @@
     els.stage.classList.toggle('is-paused', !running);
     els.liveView.classList.toggle('is-running', running);
     els.liveView.classList.toggle('is-paused', !running);
-    els.rec.textContent = running ? 'REC' : 'PAUSED';
-    els.pause.textContent = running ? '⏸ Pause' : '▶ Resume';
+    els.rec.textContent = running ? 'ЭФИР' : 'ПАУЗА';
+    els.pause.textContent = running ? '⏸ Пауза' : '▶ Продолжить';
 
     cancelAnimationFrame(rafId);
     clearInterval(titleTimer);
@@ -550,7 +573,7 @@
     }
     els.elapsed.textContent = clock(ms);
     const eq = equivalents(cost)[0];
-    els.equiv.textContent = eq ? `That's ≈ ${eq}` : 'Not even a rubber duck yet. Give it a minute. 🦆';
+    els.equiv.textContent = eq ? `Это уже ≈ ${eq}` : 'Даже на пачку семечек пока не набежало. Подождите минутку. 🌻';
     checkMilestone(cost);
 
     if (a.runningSince) {
@@ -567,7 +590,7 @@
   function updateTitle() {
     const a = state.active;
     if (!a) return;
-    document.title = `🔥 ${money(costFor(a.people, elapsedMs(a)))} burned · ${a.title}`;
+    document.title = `🔥 ${money(costFor(a.people, elapsedMs(a)))} сожжено · ${a.title}`;
   }
 
   function newQuip() {
@@ -586,7 +609,7 @@
     const a = state.active;
     let reached = -1;
     MILESTONES.forEach(([threshold], i) => {
-      if (cost >= threshold) reached = i;
+      if (cost >= fromRub(threshold)) reached = i;
     });
     if (reached > a.milestone) {
       a.milestone = reached;
@@ -631,22 +654,22 @@
   function showReceipt(m) {
     const started = new Date(m.startedAt);
     $('r-title').textContent = m.title;
-    $('r-meta').innerHTML = `${esc(started.toLocaleDateString(undefined, { dateStyle: 'medium' }))} · ${esc(
-      started.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
-    )}<br>Duration: ${esc(duration(m.durationMs))} · ${esc(plural(m.people.length, 'victim'))}`;
+    $('r-meta').innerHTML = `${esc(started.toLocaleDateString(LOCALE, { dateStyle: 'medium' }))} · ${esc(
+      started.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' }),
+    )}<br>Длительность: ${esc(duration(m.durationMs))} · ${esc(plural(m.people.length, WORDS.victim))}`;
 
     $('r-lines').innerHTML = [...m.people]
       .map((p) => ({ ...p, cost: (p.hourly * m.durationMs) / 3.6e6 }))
       .sort((a, b) => b.cost - a.cost)
       .map(
-        (p) => `<tr><td>${esc(p.name)}<small>@ ${esc(money(p.hourly))}/hr</small></td><td>${esc(money(p.cost))}</td></tr>`,
+        (p) => `<tr><td>${esc(p.name)}<small>@ ${esc(money(p.hourly))}/час</small></td><td>${esc(money(p.cost))}</td></tr>`,
       )
       .join('');
 
     $('r-total').textContent = money(m.cost);
     $('r-hours').textContent = humanHours(personHours(m));
     const eq = equivalents(m.cost, 3);
-    $('r-equiv').innerHTML = (eq.length ? eq : ['🦆 less than one rubber duck. Impressive.']).map((t) => `<li>${esc(t)}</li>`).join('');
+    $('r-equiv').innerHTML = (eq.length ? eq : ['🌻 меньше пачки семечек. Впечатляет.']).map((t) => `<li>${esc(t)}</li>`).join('');
     $('r-verdict').textContent = verdict(m);
 
     if (typeof els.receipt.showModal === 'function') els.receipt.showModal();
@@ -711,8 +734,8 @@
       const tile = $(id);
       tile.querySelector('.tile__money').textContent = money(s.cost);
       tile.querySelector('.tile__meta').textContent = s.count
-        ? `${plural(s.count, 'meeting')} · ${duration(s.ms)} · ${humanHours(s.hours)}`
-        : 'Nothing yet. Enjoy it while it lasts.';
+        ? `${plural(s.count, WORDS.meeting)} · ${duration(s.ms)} · ${humanHours(s.hours)}`
+        : 'Пока ничего. Наслаждайтесь, пока можете.';
     }
   }
 
@@ -741,22 +764,22 @@
     const d = new Date(b.start);
     if (group === 'day') {
       return {
-        top: d.toLocaleDateString(undefined, { weekday: narrow ? 'narrow' : 'short' }),
+        top: d.toLocaleDateString(LOCALE, { weekday: narrow ? 'narrow' : 'short' }),
         bottom: String(d.getDate()),
-        full: d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }),
+        full: cap(d.toLocaleDateString(LOCALE, { weekday: 'long', month: 'short', day: 'numeric' })),
       };
     }
     if (group === 'week') {
       return {
-        top: d.toLocaleDateString(undefined, { month: 'short' }),
+        top: d.toLocaleDateString(LOCALE, { month: 'short' }),
         bottom: String(d.getDate()),
-        full: `Week of ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`,
+        full: `Неделя с ${d.toLocaleDateString(LOCALE, { month: 'short', day: 'numeric' })}`,
       };
     }
     return {
-      top: d.toLocaleDateString(undefined, { month: narrow ? 'narrow' : 'short' }),
+      top: d.toLocaleDateString(LOCALE, { month: narrow ? 'narrow' : 'short' }),
       bottom: i === 0 || d.getMonth() === 0 ? `'${String(d.getFullYear()).slice(2)}` : '',
-      full: d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
+      full: cap(d.toLocaleDateString(LOCALE, { month: 'long', year: 'numeric' })),
     };
   }
 
@@ -776,21 +799,21 @@
     chartBuckets = buckets;
     const value = (b) => (isMoney ? b.cost : b.hours);
     const fmtValue = (v) => (isMoney ? money(v) : humanHours(v));
-    const fmtAxis = (v) => (isMoney ? moneyCompact(v) : `${num(v, v % 1 ? 1 : 0)}h`);
+    const fmtAxis = (v) => (isMoney ? moneyCompact(v) : `${num(v, v % 1 ? 1 : 0)} ч`);
 
     document.querySelectorAll('[data-group]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.group === group)));
     document.querySelectorAll('[data-metric]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.metric === metric)));
-    const span = { day: 'last 14 days', week: 'last 12 weeks', month: 'last 12 months' }[group];
-    els.chartTitle.textContent = isMoney ? `Money set on fire · ${span}` : `Human-hours lost forever · ${span}`;
+    const span = { day: 'последние 14 дней', week: 'последние 12 недель', month: 'последние 12 месяцев' }[group];
+    els.chartTitle.textContent = isMoney ? `Сожжённые деньги · ${span}` : `Безвозвратно потерянные человеко-часы · ${span}`;
 
     const W = Math.max(280, Math.round(els.chart.clientWidth || 600));
     const H = 280;
-    const pad = { top: 26, right: 6, bottom: 44, left: isMoney ? 58 : 44 };
+    const pad = { top: 26, right: 6, bottom: 44, left: isMoney ? 78 : 48 };
     const innerW = W - pad.left - pad.right;
     const innerH = H - pad.top - pad.bottom;
 
     const max = Math.max(...buckets.map(value));
-    const step = max > 0 ? niceStep(max, 4) : isMoney ? 25 : 0.5;
+    const step = niceStep(max > 0 ? max : isMoney ? fromRub(10000) : 2, 4);
     const yMax = max > 0 ? Math.ceil(max / step) * step : step * 4;
     const y = (v) => pad.top + innerH - (v / yMax) * innerH;
 
@@ -823,7 +846,7 @@
         );
         // Label only the tallest bar and the current one — the rest live in the tooltip.
         if (i === maxIndex || (b.current && band >= 40)) {
-          const txt = isMoney ? moneyCompact(v) : `${num(v, 1)}h`;
+          const txt = isMoney ? moneyCompact(v) : `${num(v, 1)} ч`;
           parts.push(`<text class="bar-value" x="${cx.toFixed(1)}" y="${(pad.top + innerH - h - 7).toFixed(1)}" text-anchor="middle">${esc(txt)}</text>`);
         }
       }
@@ -833,7 +856,7 @@
         parts.push(`<text class="${cls}" x="${cx.toFixed(1)}" y="${H - pad.bottom + 18}" text-anchor="middle">${esc(label.top)}</text>`);
         if (label.bottom) parts.push(`<text class="${cls}" x="${cx.toFixed(1)}" y="${H - pad.bottom + 34}" text-anchor="middle">${esc(label.bottom)}</text>`);
       }
-      const desc = `${label.full}: ${fmtValue(v)}, ${plural(b.count, 'meeting')}`;
+      const desc = `${label.full}: ${fmtValue(v)}, ${plural(b.count, WORDS.meeting)}`;
       parts.push(
         `<rect class="hit" data-i="${i}" x="${(pad.left + band * i).toFixed(1)}" y="${pad.top}" width="${band.toFixed(1)}" height="${innerH}" tabindex="0" role="img" aria-label="${esc(desc)}"/>`,
       );
@@ -861,7 +884,7 @@
     const isMoney = state.settings.metric === 'money';
     const main = isMoney ? money(b.cost) : humanHours(b.hours);
     const secondary = isMoney ? humanHours(b.hours) : money(b.cost);
-    els.chartTip.innerHTML = `${esc(b.label.full)}<br><strong>${esc(main)}</strong><br>${esc(plural(b.count, 'meeting'))} · ${esc(secondary)}`;
+    els.chartTip.innerHTML = `${esc(b.label.full)}<br><strong>${esc(main)}</strong><br>${esc(plural(b.count, WORDS.meeting))} · ${esc(secondary)}`;
     els.chartTip.hidden = false;
 
     els.chart.querySelectorAll('.bar.is-hover').forEach((r) => r.classList.remove('is-hover'));
@@ -932,19 +955,19 @@
     els.history.innerHTML = shownList
       .map((m) => {
         const d = new Date(m.startedAt);
-        const when = `${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+        const when = `${d.toLocaleDateString(LOCALE, { month: 'short', day: 'numeric' })}, ${d.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' })}`;
         const names = m.people.map((p) => p.name);
-        const shown = names.slice(0, 4).join(', ') + (names.length > 4 ? ` +${names.length - 4} more` : '');
+        const shown = names.slice(0, 4).join(', ') + (names.length > 4 ? ` и ещё ${names.length - 4}` : '');
         const isWorst = m === worst && list.length > 1;
         return `<li class="shame${isWorst ? ' is-worst' : ''}">
           <span class="shame__rank" aria-hidden="true">${isWorst ? '👑' : '💸'}</span>
           <div class="shame__main">
-            <span class="shame__title">${esc(m.title)}${isWorst ? ' <small>(most expensive)</small>' : ''}</span>
+            <span class="shame__title">${esc(m.title)}${isWorst ? ' <small>(самая дорогая)</small>' : ''}</span>
             <span class="shame__meta">${esc(when)} · ${esc(duration(m.durationMs))} · ${esc(humanHours(personHours(m)))}</span>
             <span class="shame__people">${esc(shown)}</span>
           </div>
           <span class="shame__cost">${esc(money(m.cost))}</span>
-          <button type="button" class="chip-btn chip-btn--remove" data-delete="${esc(m.id)}" aria-label="Delete ${esc(m.title)}" title="Destroy evidence">✕</button>
+          <button type="button" class="chip-btn chip-btn--remove" data-delete="${esc(m.id)}" aria-label="Удалить ${esc(m.title)}" title="Уничтожить улику">✕</button>
         </li>`;
       })
       .join('');
@@ -952,7 +975,7 @@
     els.nuke.hidden = list.length === 0;
     const hiddenCount = list.length - shownList.length;
     els.more.hidden = hiddenCount <= 0;
-    els.more.textContent = `👀 Show ${plural(Math.min(hiddenCount, HISTORY_PAGE), 'more crime')} (${num(hiddenCount)} hidden)`;
+    els.more.textContent = `👀 Показать ещё ${plural(Math.min(hiddenCount, HISTORY_PAGE), WORDS.crime)} (скрыто: ${num(hiddenCount)})`;
   }
 
   els.more.addEventListener('click', () => {
@@ -964,14 +987,14 @@
     const btn = e.target.closest('[data-delete]');
     if (!btn) return;
     const m = state.meetings.find((x) => x.id === btn.dataset.delete);
-    if (!m || !confirm(`Delete "${m.title}" from the Hall of Shame? Destroying evidence, are we?`)) return;
+    if (!m || !confirm(`Удалить «${m.title}» с доски позора? Заметаем следы?`)) return;
     state.meetings = state.meetings.filter((x) => x !== m);
     save.meetings();
     renderStats();
   });
 
   els.nuke.addEventListener('click', () => {
-    if (!confirm('Delete ALL meeting history? Your saved participants stay. This cannot be undone (unlike your calendar invites).')) return;
+    if (!confirm('Удалить ВСЮ историю встреч? Сохранённые участники останутся. Это нельзя отменить (в отличие от приглашений в календаре).')) return;
     state.meetings = [];
     save.meetings();
     renderStats();

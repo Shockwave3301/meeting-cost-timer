@@ -1,50 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meeting Cost Timer 💸</title>
-  <meta name="description" content="Watch your company's money evaporate in real time. A meeting cost timer for people who have been in too many meetings.">
+  <title>Созвонометр 💸 — сколько стоит ваша встреча</title>
+  <meta name="description" content="Смотрите, как деньги компании испаряются в реальном времени. Таймер стоимости встреч для тех, кто пережил слишком много созвонов.">
   <meta name="theme-color" content="#ffd93d">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik+Mono+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800;900&family=Rubik+Mono+One&family=Onest:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="ticker" aria-hidden="true">
     <div class="ticker__track">
-      <span class="ticker__copy">THIS MEETING COULD HAVE BEEN AN EMAIL ✦ TIME IS MONEY AND YOU ARE SPENDING BOTH ✦ YOU'RE ON MUTE ✦ CAN EVERYONE SEE MY SCREEN? ✦ LET'S TAKE THIS OFFLINE ✦ PER MY LAST EMAIL ✦ QUICK SYNC (IT IS NOT QUICK) ✦ LET'S CIRCLE BACK ✦ HARD STOP AT :00 (THERE IS NO HARD STOP) ✦&nbsp;</span>
-      <span class="ticker__copy">THIS MEETING COULD HAVE BEEN AN EMAIL ✦ TIME IS MONEY AND YOU ARE SPENDING BOTH ✦ YOU'RE ON MUTE ✦ CAN EVERYONE SEE MY SCREEN? ✦ LET'S TAKE THIS OFFLINE ✦ PER MY LAST EMAIL ✦ QUICK SYNC (IT IS NOT QUICK) ✦ LET'S CIRCLE BACK ✦ HARD STOP AT :00 (THERE IS NO HARD STOP) ✦&nbsp;</span>
+      <span class="ticker__copy">ЭТО МОЖНО БЫЛО ПИСЬМОМ ✦ ВРЕМЯ — ДЕНЬГИ, И ВЫ ТРАТИТЕ И ТО И ДРУГОЕ ✦ У ВАС МИКРОФОН ВЫКЛЮЧЕН ✦ ВАМ ВИДНО МОЙ ЭКРАН? ✦ ДАВАЙТЕ ОБСУДИМ ОТДЕЛЬНО ✦ КАК Я УЖЕ ПИСАЛ В ПИСЬМЕ ✦ БЫСТРЫЙ СОЗВОН (НЕТ) ✦ МЕНЯ СЛЫШНО? ✦ ВЕРНЁМСЯ К ЭТОМУ ПОЗЖЕ ✦ У МЕНЯ ЖЁСТКИЙ СТОП В :00 (НЕТ) ✦&nbsp;</span>
+      <span class="ticker__copy">ЭТО МОЖНО БЫЛО ПИСЬМОМ ✦ ВРЕМЯ — ДЕНЬГИ, И ВЫ ТРАТИТЕ И ТО И ДРУГОЕ ✦ У ВАС МИКРОФОН ВЫКЛЮЧЕН ✦ ВАМ ВИДНО МОЙ ЭКРАН? ✦ ДАВАЙТЕ ОБСУДИМ ОТДЕЛЬНО ✦ КАК Я УЖЕ ПИСАЛ В ПИСЬМЕ ✦ БЫСТРЫЙ СОЗВОН (НЕТ) ✦ МЕНЯ СЛЫШНО? ✦ ВЕРНЁМСЯ К ЭТОМУ ПОЗЖЕ ✦ У МЕНЯ ЖЁСТКИЙ СТОП В :00 (НЕТ) ✦&nbsp;</span>
     </div>
   </div>
 
   <header class="hero">
     <div class="hero__text">
+      <p class="hero__kicker">Таймер стоимости встреч</p>
       <h1 class="logo">
-        <span class="logo__word">Meeting</span>
-        <span class="logo__word logo__word--cost">Cost</span>
-        <span class="logo__word">Timer</span>
+        <span class="logo__word">Созвоно</span><span class="logo__word logo__word--cost">метр</span>
       </h1>
-      <p class="hero__tagline">Watch your company's money evaporate in <mark>real&nbsp;time</mark>. 💸🔥</p>
+      <p class="hero__tagline">Смотрите, как деньги компании испаряются в <mark>реальном&nbsp;времени</mark>. 💸🔥</p>
     </div>
     <div class="hero__side">
-      <div class="seal" aria-hidden="true"><span>100%<br>certified<br>waste</span></div>
+      <div class="seal" aria-hidden="true"><span>100%<br>чистых<br>убытков</span></div>
       <label class="currency">
-        <span>Currency</span>
+        <span>Валюта</span>
         <select id="currency">
+          <option value="RUB">RUB ₽</option>
           <option value="USD">USD $</option>
           <option value="EUR">EUR €</option>
-          <option value="GBP">GBP £</option>
-          <option value="JPY">JPY ¥</option>
-          <option value="CHF">CHF</option>
-          <option value="CAD">CAD $</option>
-          <option value="AUD">AUD $</option>
-          <option value="INR">INR ₹</option>
-          <option value="BRL">BRL R$</option>
-          <option value="RUB">RUB ₽</option>
           <option value="KZT">KZT ₸</option>
+          <option value="BYN">BYN Br</option>
+          <option value="CNY">CNY ¥</option>
+          <option value="GBP">GBP £</option>
+          <option value="CHF">CHF</option>
+          <option value="JPY">JPY ¥</option>
         </select>
       </label>
     </div>
@@ -52,112 +49,112 @@
 
   <main>
     <section class="stage" id="stage">
-      <!-- Setup: build the meeting -->
+      <!-- Подготовка: собираем встречу -->
       <article class="card card--setup" id="setup-view" aria-labelledby="setup-title">
-        <h2 class="card__title" id="setup-title"><span class="badge">Step 1</span> Summon a meeting</h2>
+        <h2 class="card__title" id="setup-title"><span class="badge">Шаг 1</span> Созываем встречу</h2>
 
         <label class="field" for="meeting-title">
-          <span class="field__label">What are we calling this?</span>
+          <span class="field__label">Как назовём это безобразие?</span>
         </label>
         <div class="field__row">
           <input id="meeting-title" type="text" maxlength="80" autocomplete="off">
-          <button type="button" class="btn btn--icon" id="random-title" title="Generate a corporate-sounding name" aria-label="Generate a random meeting name">🎲</button>
+          <button type="button" class="btn btn--icon" id="random-title" title="Придумать корпоративное название" aria-label="Придумать случайное название встречи">🎲</button>
         </div>
 
-        <h3 class="sub"><span class="badge badge--cyan">Step 2</span> Round up the victims</h3>
+        <h3 class="sub"><span class="badge badge--cyan">Шаг 2</span> Собираем жертв</h3>
         <form id="add-person" class="add-person" autocomplete="off">
-          <input name="name" type="text" placeholder="Name, e.g. Dave" maxlength="40" required aria-label="Participant name">
-          <input name="salary" type="number" min="0" step="any" inputmode="decimal" placeholder="Salary" required aria-label="Salary">
-          <select name="unit" aria-label="Salary period">
-            <option value="year">per year</option>
-            <option value="month">per month</option>
-            <option value="hour">per hour</option>
+          <input name="name" type="text" placeholder="Имя, напр. Дима" maxlength="40" required aria-label="Имя участника">
+          <input name="salary" type="number" min="0" step="any" inputmode="decimal" placeholder="Зарплата" required aria-label="Зарплата">
+          <select name="unit" aria-label="За какой период зарплата">
+            <option value="month">в месяц</option>
+            <option value="year">в год</option>
+            <option value="hour">в час</option>
           </select>
-          <button class="btn btn--add" type="submit">Add +</button>
+          <button class="btn btn--add" type="submit">+ Добавить</button>
         </form>
 
         <ul id="attendees" class="people"></ul>
-        <p class="empty" id="attendees-empty">Nobody's here yet. Honestly? Best meeting ever.</p>
+        <p class="empty" id="attendees-empty">Пока никого. Честно? Лучшая встреча в истории.</p>
 
         <div class="burn" id="burn-preview">
-          <div class="burn__item"><span>Burn rate</span><strong id="preview-minute">—</strong><small>per minute</small></div>
-          <div class="burn__item"><span>Per hour</span><strong id="preview-hour">—</strong><small>gone forever</small></div>
-          <div class="burn__item"><span>Hostages</span><strong id="preview-count">0</strong><small id="preview-count-note">humans</small></div>
+          <div class="burn__item"><span>Сгорает</span><strong id="preview-minute">—</strong><small>в минуту</small></div>
+          <div class="burn__item"><span>В час</span><strong id="preview-hour">—</strong><small>безвозвратно</small></div>
+          <div class="burn__item"><span>Заложники</span><strong id="preview-count">0</strong><small id="preview-count-note">человек</small></div>
         </div>
 
-        <button type="button" id="start-btn" class="btn btn--start" disabled>🔥 Start burning money</button>
+        <button type="button" id="start-btn" class="btn btn--start" disabled>🔥 Начать жечь деньги</button>
       </article>
 
-      <!-- Live: the money furnace -->
+      <!-- Эфир: денежная топка -->
       <article class="card card--live" id="live-view" hidden aria-labelledby="live-title">
         <div class="live__top">
-          <span class="rec" id="rec"><span class="rec__dot"></span><span id="rec-label">REC</span></span>
+          <span class="rec" id="rec"><span class="rec__dot"></span><span id="rec-label">ЭФИР</span></span>
           <h2 class="live__title" id="live-title"></h2>
         </div>
 
         <div class="meter">
-          <p class="meter__label">Money incinerated so far</p>
-          <output class="counter" id="counter" aria-live="off">$0.00</output>
+          <p class="meter__label">Сожжено денег на данный момент</p>
+          <output class="counter" id="counter" aria-live="off">0,00 ₽</output>
           <p class="sticker" id="sticker" hidden></p>
         </div>
 
         <div class="live__stats">
-          <div class="stat"><span>Elapsed</span><strong id="elapsed">00:00:00</strong></div>
-          <div class="stat"><span>Per minute</span><strong id="live-minute">—</strong></div>
-          <div class="stat"><span>Hostages</span><strong id="live-count">0</strong></div>
+          <div class="stat"><span>Прошло</span><strong id="elapsed">00:00:00</strong></div>
+          <div class="stat"><span>В минуту</span><strong id="live-minute">—</strong></div>
+          <div class="stat"><span>Заложники</span><strong id="live-count">0</strong></div>
         </div>
 
         <p class="equiv" id="equiv"></p>
         <p class="quip" id="quip"></p>
 
         <div class="live__actions">
-          <button type="button" id="pause-btn" class="btn btn--pause">⏸ Pause</button>
-          <button type="button" id="stop-btn" class="btn btn--stop">🛑 End meeting &amp; tally the damage</button>
+          <button type="button" id="pause-btn" class="btn btn--pause">⏸ Пауза</button>
+          <button type="button" id="stop-btn" class="btn btn--stop">🛑 Закончить и подсчитать ущерб</button>
         </div>
-        <button type="button" id="discard-btn" class="link-btn">Abort mission (don't save this one)</button>
+        <button type="button" id="discard-btn" class="link-btn">Отменить миссию (эту встречу не сохранять)</button>
       </article>
 
-      <!-- Saved participants -->
+      <!-- Сохранённые участники -->
       <aside class="card card--roster" id="roster-view" aria-labelledby="roster-title">
-        <h2 class="card__title" id="roster-title"><span class="badge badge--lime">Saved</span> The Usual Suspects</h2>
-        <p class="hint">Everyone you've ever dragged into a meeting. Tap to drag them in again.</p>
+        <h2 class="card__title" id="roster-title"><span class="badge badge--lime">Картотека</span> Подозрительные лица</h2>
+        <p class="hint">Все, кого вы когда-либо затаскивали на созвон. Жмите, чтобы затащить снова.</p>
         <ul id="roster" class="people people--roster"></ul>
-        <p class="empty" id="roster-empty">No repeat offenders yet. Add someone to a meeting and they'll show up here forever.</p>
-        <button type="button" id="add-all" class="btn btn--small" hidden>📣 Invite literally everyone</button>
+        <p class="empty" id="roster-empty">Рецидивистов пока нет. Добавьте кого-нибудь на встречу — и он останется здесь навсегда.</p>
+        <button type="button" id="add-all" class="btn btn--small" hidden>📣 Позвать вообще всех</button>
       </aside>
     </section>
 
     <section class="section" aria-labelledby="damage-title">
-      <h2 class="section__title" id="damage-title">📉 The Damage Report</h2>
+      <h2 class="section__title" id="damage-title">📉 Отчёт об ущербе</h2>
       <div class="tiles">
-        <div class="tile tile--pink" id="tile-today"><span class="tile__label">Today</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--yellow" id="tile-week"><span class="tile__label">This week</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--cyan" id="tile-month"><span class="tile__label">This month</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--lime" id="tile-all"><span class="tile__label">All time (yikes)</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
+        <div class="tile tile--pink" id="tile-today"><span class="tile__label">Сегодня</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
+        <div class="tile tile--yellow" id="tile-week"><span class="tile__label">Эта неделя</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
+        <div class="tile tile--cyan" id="tile-month"><span class="tile__label">Этот месяц</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
+        <div class="tile tile--lime" id="tile-all"><span class="tile__label">За всё время (жуть)</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
       </div>
 
       <div class="card card--chart">
         <div class="chart__controls">
-          <div class="seg" role="group" aria-label="Group by">
-            <button type="button" data-group="day">Daily</button>
-            <button type="button" data-group="week">Weekly</button>
-            <button type="button" data-group="month">Monthly</button>
+          <div class="seg" role="group" aria-label="Группировка">
+            <button type="button" data-group="day">Дни</button>
+            <button type="button" data-group="week">Недели</button>
+            <button type="button" data-group="month">Месяцы</button>
           </div>
-          <div class="seg" role="group" aria-label="Measure">
-            <button type="button" data-metric="money">💰 Money</button>
-            <button type="button" data-metric="time">⏱ Human-hours</button>
+          <div class="seg" role="group" aria-label="Что считаем">
+            <button type="button" data-metric="money">💰 Деньги</button>
+            <button type="button" data-metric="time">⏱ Человеко-часы</button>
           </div>
         </div>
         <h3 class="chart__title" id="chart-title"></h3>
         <div class="chart" id="chart">
-          <p class="chart__empty" id="chart-empty" hidden><span>Zero waste in this period. Suspiciously productive. 🤨</span></p>
+          <p class="chart__empty" id="chart-empty" hidden><span>За этот период — ноль потерь. Подозрительно продуктивно. 🤨</span></p>
           <div class="chart__tip" id="chart-tip" hidden></div>
         </div>
         <details class="chart__table">
-          <summary>Show the raw numbers</summary>
+          <summary>Показать сырые цифры</summary>
           <div class="table-wrap">
             <table>
-              <thead><tr><th scope="col">Period</th><th scope="col">Meetings</th><th scope="col">Money burned</th><th scope="col">Human-hours</th></tr></thead>
+              <thead><tr><th scope="col">Период</th><th scope="col">Встреч</th><th scope="col">Сожжено</th><th scope="col">Человеко-часы</th></tr></thead>
               <tbody id="chart-table"></tbody>
             </table>
           </div>
@@ -167,24 +164,24 @@
 
     <section class="section" aria-labelledby="shame-title">
       <div class="section__head">
-        <h2 class="section__title" id="shame-title">🏆 Hall of Shame</h2>
-        <button type="button" id="nuke-btn" class="btn btn--small btn--danger" hidden>☢️ Destroy the evidence</button>
+        <h2 class="section__title" id="shame-title">🏆 Доска позора</h2>
+        <button type="button" id="nuke-btn" class="btn btn--small btn--danger" hidden>☢️ Уничтожить улики</button>
       </div>
       <ol id="history" class="history"></ol>
       <button type="button" id="more-btn" class="btn btn--small more-btn" hidden></button>
-      <p class="empty empty--big" id="history-empty">No meetings recorded. Either you're incredibly productive or you haven't pressed the big button yet.</p>
+      <p class="empty empty--big" id="history-empty">Ни одной встречи. Либо вы невероятно продуктивны, либо ещё не нажали большую розовую кнопку.</p>
     </section>
   </main>
 
   <footer class="footer">
-    <p><strong>How the math works:</strong> yearly salaries ÷ 2,080 working hours (monthly ÷ 173.3) = cost per hour of each human. Add them all up, multiply by time spent "aligning". Cry.</p>
-    <p>Everything lives in your browser's localStorage. No data leaves this device — unlike your will to live during the Q3 planning sync.</p>
+    <p><strong>Как считаем:</strong> месячная зарплата ÷ 173,3 рабочих часа (годовая ÷ 2080) = стоимость часа каждого участника. Складываем всех, умножаем на время, ушедшее на «синхронизацию». Плачем.</p>
+    <p>Всё хранится в localStorage вашего браузера. Данные никуда не уходят с этого устройства — в отличие от вашей воли к жизни на квартальном планировании.</p>
   </footer>
 
   <dialog id="receipt" class="receipt-dialog" aria-labelledby="r-heading">
     <div class="receipt">
-      <p class="receipt__store" id="r-heading">*** RECEIPT OF SHAME ***</p>
-      <p class="receipt__small">MEETING COST TIMER INC.<br>DEPT. OF REGRETTABLE DECISIONS</p>
+      <p class="receipt__store" id="r-heading">*** ЧЕК ПОЗОРА ***</p>
+      <p class="receipt__small">ООО «СОЗВОНОМЕТР»<br>ДЕПАРТАМЕНТ СОМНИТЕЛЬНЫХ РЕШЕНИЙ</p>
       <hr>
       <p class="receipt__title" id="r-title"></p>
       <p class="receipt__small" id="r-meta"></p>
@@ -193,18 +190,18 @@
         <tbody id="r-lines"></tbody>
       </table>
       <hr>
-      <div class="receipt__total"><span>TOTAL BURNED</span><strong id="r-total"></strong></div>
-      <div class="receipt__row"><span>Human-hours lost</span><span id="r-hours"></span></div>
+      <div class="receipt__total"><span>ИТОГО СОЖЖЕНО</span><strong id="r-total"></strong></div>
+      <div class="receipt__row"><span>Потеряно человеко-часов</span><span id="r-hours"></span></div>
       <hr>
-      <p class="receipt__small">THAT'S THE SAME AS:</p>
+      <p class="receipt__small">НА ЭТИ ДЕНЬГИ МОЖНО БЫЛО КУПИТЬ:</p>
       <ul class="receipt__equiv" id="r-equiv"></ul>
       <hr>
       <p class="receipt__verdict" id="r-verdict"></p>
       <p class="receipt__barcode" aria-hidden="true">║▌║█║▌│║▌║▌█║▌║│█║</p>
-      <p class="receipt__small">THANK YOU FOR WASTING WITH US<br>NO REFUNDS. EVER.</p>
+      <p class="receipt__small">СПАСИБО, ЧТО ТРАТИТЕ ВРЕМЯ С НАМИ<br>ВОЗВРАТУ НЕ ПОДЛЕЖИТ</p>
     </div>
     <form method="dialog" class="receipt__actions">
-      <button class="btn btn--start" value="close">I'm sorry 😔</button>
+      <button class="btn btn--start" value="close">Мне стыдно 😔</button>
     </form>
   </dialog>
 

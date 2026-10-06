@@ -21,9 +21,9 @@
   --radius: 16px;
   --radius-sm: 10px;
 
-  --font-display: "Bungee", "Arial Black", Impact, system-ui, sans-serif;
-  --font-mono: "Rubik Mono One", "Courier New", monospace;
-  --font-body: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Unbounded", "Arial Black", Impact, system-ui, sans-serif;
+  --font-mono: "Rubik Mono One", "Unbounded", "Courier New", monospace; /* Unbounded fills in ₽, which Rubik Mono One lacks */
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-receipt: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
 
   color-scheme: light;
@@ -67,6 +67,7 @@ mark {
   background: var(--ink);
   color: var(--yellow);
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.9rem;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -97,15 +98,32 @@ mark {
   flex-wrap: wrap;
 }
 
+.hero__kicker {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
+  text-transform: uppercase;
+  background: var(--cyan);
+  border: var(--border);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-2deg);
+  margin-bottom: 1rem;
+}
+
+/* One word, two halves: "Созвоно" + a highlighted "метр". */
 .logo {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(2.6rem, 10vw, 6.4rem);
+  font-weight: 900;
+  font-size: clamp(2.2rem, 9.4vw, 6rem);
   line-height: 0.95;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   display: flex;
   flex-wrap: wrap;
-  gap: 0 0.25em;
+  align-items: center;
   text-shadow: 4px 4px 0 var(--pink);
 }
 
@@ -114,7 +132,8 @@ mark {
   background: var(--lime);
   border: var(--border);
   border-radius: 12px;
-  padding: 0 0.15em;
+  padding: 0 0.12em;
+  margin-left: 0.06em;
   text-shadow: 4px 4px 0 var(--white);
   box-shadow: var(--shadow);
   transform: rotate(-3deg);
@@ -148,6 +167,7 @@ mark {
   place-items: center;
   text-align: center;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.8rem;
   line-height: 1.05;
   text-transform: uppercase;
@@ -167,6 +187,7 @@ mark {
   display: grid;
   gap: 0.25rem;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.8rem;
   text-transform: uppercase;
 }
@@ -202,6 +223,7 @@ input::placeholder { color: #8c8276; }
   justify-content: center;
   gap: 0.4em;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 1rem;
   line-height: 1.1;
   text-transform: uppercase;
@@ -296,7 +318,7 @@ main {
 
 .card__title {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: clamp(1.25rem, 3vw, 1.6rem);
   margin-bottom: 1rem;
   display: flex;
@@ -308,8 +330,8 @@ main {
 .badge {
   display: inline-block;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.7rem;
-  font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   background: var(--pink);
@@ -324,7 +346,7 @@ main {
 
 .sub {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: 1.1rem;
   margin: 1.6rem 0 0.8rem;
   display: flex;
@@ -404,6 +426,7 @@ main {
   display: grid;
   place-items: center;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.85rem;
 }
 
@@ -445,6 +468,7 @@ main {
 .people--roster .person.is-in { background: #f3f3ea; }
 .person__tag {
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.65rem;
   background: var(--yellow);
   border: 2px solid var(--ink);
@@ -475,7 +499,7 @@ main {
   min-width: 0;
 }
 .burn__item span { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; }
-.burn__item strong { font-family: var(--font-display); font-weight: 400; font-size: clamp(1rem, 2.6vw, 1.3rem); overflow-wrap: anywhere; }
+.burn__item strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 2.6vw, 1.3rem); overflow-wrap: anywhere; }
 .burn__item small { color: var(--muted); }
 
 /* ---------- live view ---------- */
@@ -490,7 +514,7 @@ main {
 
 .live__title {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: clamp(1.2rem, 3.5vw, 1.9rem);
   overflow-wrap: anywhere;
 }
@@ -500,6 +524,7 @@ main {
   align-items: center;
   gap: 0.45em;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.8rem;
   background: var(--ink);
   color: var(--white);
@@ -528,6 +553,7 @@ main {
 
 .meter__label {
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.8rem;
   text-transform: uppercase;
   margin-bottom: 0.4rem;
@@ -597,7 +623,7 @@ main {
   min-width: 0;
 }
 .stat span { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-.stat strong { font-family: var(--font-display); font-weight: 400; font-size: clamp(1rem, 3.4vw, 1.7rem); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.stat strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 3.4vw, 1.7rem); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 
 .equiv {
   margin-top: 1.25rem;
@@ -644,7 +670,7 @@ main {
 
 .section__title {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: clamp(1.6rem, 5vw, 2.6rem);
   margin-bottom: 1.25rem;
 }
@@ -673,8 +699,8 @@ main {
 .tile--cyan { background: var(--cyan); }
 .tile--lime { background: var(--lime); }
 
-.tile__label { font-family: var(--font-display); font-size: 0.8rem; text-transform: uppercase; }
-.tile__money { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.3rem, 3vw, 1.9rem); overflow-wrap: anywhere; line-height: 1.1; }
+.tile__label { font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; }
+.tile__money { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.3rem, 3vw, 1.9rem); overflow-wrap: anywhere; line-height: 1.1; }
 .tile__meta { font-size: 0.85rem; font-weight: 500; }
 
 /* ---------- chart ---------- */
@@ -701,6 +727,7 @@ main {
   background: transparent;
   padding: 0.5rem 0.85rem;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.75rem;
   text-transform: uppercase;
   cursor: pointer;
@@ -711,7 +738,7 @@ main {
 
 .chart__title {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 800;
   font-size: 1rem;
   margin-bottom: 0.5rem;
 }
@@ -732,7 +759,7 @@ main {
 .chart .bar { fill: var(--purple); stroke: var(--ink); stroke-width: 2.5; transition: fill 0.12s; }
 .chart .bar.is-current { fill: var(--pink); }
 .chart .bar.is-hover { fill: var(--yellow); }
-.chart .bar-value { font-family: var(--font-display); font-size: 12px; fill: var(--ink); }
+.chart .bar-value { font-family: var(--font-display); font-weight: 800; font-size: 12px; fill: var(--ink); }
 .chart .hit { fill: transparent; cursor: pointer; outline: none; }
 .chart .hit:focus-visible { fill: rgba(20, 20, 20, 0.06); }
 
@@ -750,7 +777,7 @@ main {
   transform: translate(-50%, calc(-100% - 10px));
   box-shadow: 3px 3px 0 var(--pink);
 }
-.chart__tip strong { font-family: var(--font-display); font-weight: 400; color: var(--yellow); font-size: 1rem; }
+.chart__tip strong { font-family: var(--font-display); font-weight: 800; color: var(--yellow); font-size: 1rem; }
 
 .chart__empty {
   position: absolute;
@@ -777,7 +804,7 @@ main {
 .chart__table table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .chart__table th,
 .chart__table td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 2px solid var(--ink); white-space: nowrap; }
-.chart__table th { font-family: var(--font-display); font-weight: 400; font-size: 0.75rem; }
+.chart__table th { font-family: var(--font-display); font-weight: 800; font-size: 0.75rem; }
 .chart__table td:not(:first-child),
 .chart__table th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
 
@@ -806,6 +833,7 @@ main {
 .shame__rank {
   flex: none;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: 1.4rem;
   width: 2.5rem;
   text-align: center;
@@ -819,6 +847,7 @@ main {
 .shame__cost {
   flex: none;
   font-family: var(--font-display);
+  font-weight: 800;
   font-size: clamp(1rem, 2.6vw, 1.35rem);
   background: var(--yellow);
   border: 2px solid var(--ink);
@@ -966,7 +995,7 @@ main {
   .shame__rank { width: auto; font-size: 1.1rem; }
   .shame__main { flex-basis: calc(100% - 3rem); }
   .shame__cost { margin-left: auto; }
-  .sticker { right: 0; bottom: -2rem; }
+  .sticker { position: relative; right: auto; bottom: auto; width: fit-content; max-width: 100%; margin: 0.9rem 0 -0.8rem auto; }
 }
 
 @media (max-width: 380px) {
