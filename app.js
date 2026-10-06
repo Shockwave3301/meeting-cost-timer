@@ -21,6 +21,10 @@
   const AVATAR_COLORS = ['#ff5ca8', '#ffd93d', '#b8f04a', '#4fd8ff', '#ff8c42', '#9b7bff'];
   const RAIN = ['💸', '💵', '💰', '🪙', '🔥', '💸', '💶', '💷'];
 
+  // Employer's insurance contributions on top of gross salary (RU general rate): 30% + 0.2% injury insurance.
+  // Personal income tax (НДФЛ) is already inside the gross salary, so it is not added again.
+  const DEFAULT_TAX_RATE = 30.2;
+
   // Rough units of each currency per 1 USD. Only used to scale the jokes
   // (milestones, price comparisons, verdicts), never the actual meeting cost.
   const PER_USD = { RUB: 90, USD: 1, EUR: 0.9, KZT: 500, BYN: 3.2, CNY: 7.2, GBP: 0.78, CHF: 0.88, JPY: 150 };
@@ -128,6 +132,7 @@
   };
 
   const asArray = (v) => (Array.isArray(v) ? v : []);
+  const isRate = (v) => Number.isFinite(v) && v >= 0 && v <= 100;
   const isPerson = (p) => p && typeof p.name === 'string' && Number.isFinite(p.salary) && p.unit in HOURS_PER;
 
   const savedDraft = store.get(KEYS.draft, {}) || {};
@@ -141,8 +146,10 @@
       people: asArray(savedDraft.people).filter(isPerson),
     },
     active: savedActive && Array.isArray(savedActive.people) && savedActive.people.length ? savedActive : null,
-    settings: { currency: 'RUB', group: 'day', metric: 'money', ...(store.get(KEYS.settings, {}) || {}) },
+    settings: { currency: 'RUB', group: 'day', metric: 'money', taxRate: DEFAULT_TAX_RATE, ...(store.get(KEYS.settings, {}) || {}) },
   };
+  if (!isRate(state.settings.taxRate)) state.settings.taxRate = DEFAULT_TAX_RATE;
+  if (!['money', 'tax', 'time'].includes(state.settings.metric)) state.settings.metric = 'money';
 
   const save = {
     roster: () => store.set(KEYS.roster, state.roster),
@@ -170,6 +177,9 @@
   const burnPerHour = (people) => people.reduce((sum, p) => sum + hourlyOf(p), 0);
   const costFor = (people, ms) => (burnPerHour(people) * ms) / 3.6e6;
   const personHours = (m) => (m.durationMs * m.people.length) / 3.6e6;
+  // Meetings remember the rate they were held at; older ones fall back to the current setting.
+  const rateOf = (m) => (isRate(m.taxRate) ? m.taxRate : state.settings.taxRate);
+  const taxOf = (m) => (m.cost * rateOf(m)) / 100;
 
   const formatters = new Map();
   function money(n, opts = {}) {
@@ -189,6 +199,8 @@
   const moneyWhole = (n) => money(n, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const moneyCompact = (n) => money(n, { notation: 'compact', minimumFractionDigits: 0, maximumFractionDigits: 1 });
   const num = (n, digits = 0) => n.toLocaleString(LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  const rateText = (r) => r.toLocaleString(LOCALE, { maximumFractionDigits: 2 });
+  const percent = (r) => `${rateText(r)}%`;
 
   function clock(ms) {
     const s = Math.floor(ms / 1000);
@@ -272,10 +284,15 @@
     previewHour: $('preview-hour'),
     previewCount: $('preview-count'),
     previewCountNote: $('preview-count-note'),
+    taxRate: $('tax-rate'),
+    taxPreview: $('tax-preview'),
     start: $('start-btn'),
     rec: $('rec-label'),
     liveTitle: $('live-title'),
     counter: $('counter'),
+    taxMeter: $('tax-meter'),
+    taxCounter: $('tax-counter'),
+    taxRateLabel: $('tax-rate-label'),
     sticker: $('sticker'),
     elapsed: $('elapsed'),
     liveMinute: $('live-minute'),
@@ -340,7 +357,28 @@
     els.previewCount.textContent = num(people.length);
     els.previewCountNote.textContent = people.length === 1 ? 'человек (говорит сам с собой?)' : word(people.length, WORDS.human);
     els.start.disabled = people.length === 0;
+
+    if (document.activeElement !== els.taxRate) els.taxRate.value = rateText(state.settings.taxRate);
+    const taxPerMinute = (perHour / 60) * (state.settings.taxRate / 100);
+    els.taxPreview.textContent = people.length && taxPerMinute > 0 ? `Для этой встречи это ещё +${money(taxPerMinute)} в минуту.` : '';
   }
+
+  els.taxRate.addEventListener('change', () => {
+    const rate = parseFloat(els.taxRate.value.replace(',', '.').replace(/[%\s]/g, ''));
+    if (!isRate(rate)) {
+      els.taxRate.setCustomValidity('Ставка от 0 до 100%. Даже у государства есть границы. Наверное.');
+      els.taxRate.reportValidity();
+      return;
+    }
+    state.settings.taxRate = Math.round(rate * 100) / 100;
+    save.settings();
+    renderDraft();
+    renderStats();
+  });
+  els.taxRate.addEventListener('input', () => els.taxRate.setCustomValidity(''));
+  els.taxRate.addEventListener('blur', () => {
+    if (els.taxRate.validity.valid) renderDraft();
+  });
 
   function renderRoster() {
     const inMeeting = new Set(state.draft.people.map((p) => norm(p.name)));
@@ -454,6 +492,7 @@
   let quipTimer = 0;
   let nextDropAt = 0;
   let lastCounterLen = 0;
+  let lastTaxLen = 0;
 
   const elapsedMs = (a) => a.accumulatedMs + (a.runningSince ? Date.now() - a.runningSince : 0);
 
@@ -469,6 +508,7 @@
       accumulatedMs: 0,
       runningSince: now,
       milestone: -1,
+      taxRate: state.settings.taxRate,
     };
     save.active();
     enterLive();
@@ -499,6 +539,7 @@
       endedAt: Date.now(),
       durationMs,
       cost: costFor(a.people, durationMs),
+      taxRate: rateOf(a),
       people: a.people,
     };
     state.meetings.push(meeting);
@@ -540,9 +581,12 @@
     els.liveTitle.textContent = a.title;
     els.liveMinute.textContent = money(burnPerHour(a.people) / 60);
     els.liveCount.textContent = num(a.people.length);
+    els.taxMeter.hidden = rateOf(a) === 0;
+    els.taxRateLabel.textContent = percent(rateOf(a));
     els.sticker.hidden = true;
     if (a.milestone >= 0) showSticker(MILESTONES[a.milestone][1], false);
     lastCounterLen = 0;
+    lastTaxLen = 0;
     syncLiveState();
   }
 
@@ -580,6 +624,12 @@
     if (text.length !== lastCounterLen) {
       lastCounterLen = text.length;
       els.counter.style.setProperty('--len', String(text.length));
+    }
+    const taxText = money((cost * rateOf(a)) / 100);
+    els.taxCounter.textContent = taxText;
+    if (taxText.length !== lastTaxLen) {
+      lastTaxLen = taxText.length;
+      els.taxCounter.style.setProperty('--len', String(taxText.length));
     }
     els.elapsed.textContent = clock(ms);
     const eq = equivalents(cost)[0];
@@ -688,7 +738,13 @@
       )
       .join('');
 
-    $('r-total').textContent = money(m.cost);
+    const rate = rateOf(m);
+    const tax = taxOf(m);
+    $('r-salaries').textContent = money(m.cost);
+    $('r-tax-label').textContent = `Налоги и взносы (${percent(rate)})`;
+    $('r-tax').textContent = money(tax);
+    $('r-tax-row').hidden = rate === 0;
+    $('r-total').textContent = money(m.cost + tax);
     $('r-hours').textContent = humanHours(personHours(m));
     const eq = equivalents(m.cost, 3);
     $('r-equiv').innerHTML = (eq.length ? eq : ['🌻 меньше пачки семечек. Впечатляет.']).map((t) => `<li>${esc(t)}</li>`).join('');
@@ -740,6 +796,7 @@
     return {
       count: list.length,
       cost: list.reduce((s, m) => s + m.cost, 0),
+      tax: list.reduce((s, m) => s + taxOf(m), 0),
       ms: list.reduce((s, m) => s + m.durationMs, 0),
       hours: list.reduce((s, m) => s + personHours(m), 0),
     };
@@ -757,6 +814,7 @@
       const s = summarize(from);
       const tile = $(id);
       tile.querySelector('.tile__money').textContent = money(s.cost);
+      tile.querySelector('.tile__tax').textContent = s.tax > 0 ? `+ ${money(s.tax)} налогов сверху` : '';
       tile.querySelector('.tile__meta').textContent = s.count
         ? `${plural(s.count, WORDS.meeting)} · ${duration(s.ms)} · ${humanHours(s.hours)}`
         : 'Пока ничего. Наслаждайтесь, пока можете.';
@@ -770,6 +828,7 @@
       start: addPeriod(first, group, i).getTime(),
       end: addPeriod(first, group, i + 1).getTime(),
       cost: 0,
+      tax: 0,
       hours: 0,
       count: 0,
       current: i === n - 1,
@@ -778,6 +837,7 @@
       const b = buckets.find((bk) => m.startedAt >= bk.start && m.startedAt < bk.end);
       if (!b) continue;
       b.cost += m.cost;
+      b.tax += taxOf(m);
       b.hours += personHours(m);
       b.count += 1;
     }
@@ -818,17 +878,21 @@
 
   function renderChart() {
     const { group, metric } = state.settings;
-    const isMoney = metric === 'money';
+    const isMoney = metric !== 'time';
     const buckets = buildBuckets(group);
     chartBuckets = buckets;
-    const value = (b) => (isMoney ? b.cost : b.hours);
+    const value = (b) => (metric === 'tax' ? b.tax : metric === 'time' ? b.hours : b.cost);
     const fmtValue = (v) => (isMoney ? money(v) : humanHours(v));
     const fmtAxis = (v) => (isMoney ? moneyCompact(v) : `${num(v, v % 1 ? 1 : 0)} ч`);
 
     document.querySelectorAll('[data-group]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.group === group)));
     document.querySelectorAll('[data-metric]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.metric === metric)));
     const span = { day: 'последние 14 дней', week: 'последние 12 недель', month: 'последние 12 месяцев' }[group];
-    els.chartTitle.textContent = isMoney ? `Сожжённые деньги · ${span}` : `Безвозвратно потерянные человеко-часы · ${span}`;
+    els.chartTitle.textContent = {
+      money: `Сожжённые деньги · ${span}`,
+      tax: `Налоги и взносы сверху · ${span}`,
+      time: `Безвозвратно потерянные человеко-часы · ${span}`,
+    }[metric];
 
     const W = Math.max(280, Math.round(els.chart.clientWidth || 600));
     const H = 280;
@@ -896,7 +960,7 @@
       .reverse()
       .map(
         (b) =>
-          `<tr><td>${esc(b.label.full)}</td><td>${num(b.count)}</td><td>${esc(money(b.cost))}</td><td>${esc(num(b.hours, 1))}</td></tr>`,
+          `<tr><td>${esc(b.label.full)}</td><td>${num(b.count)}</td><td>${esc(money(b.cost))}</td><td>${esc(money(b.tax))}</td><td>${esc(num(b.hours, 1))}</td></tr>`,
       )
       .join('');
   }
@@ -905,10 +969,12 @@
     const b = chartBuckets[i];
     const hit = els.chart.querySelector(`.hit[data-i="${i}"]`);
     if (!b || !hit) return;
-    const isMoney = state.settings.metric === 'money';
-    const main = isMoney ? money(b.cost) : humanHours(b.hours);
-    const secondary = isMoney ? humanHours(b.hours) : money(b.cost);
-    els.chartTip.innerHTML = `${esc(b.label.full)}<br><strong>${esc(main)}</strong><br>${esc(plural(b.count, WORDS.meeting))} · ${esc(secondary)}`;
+    const [main, ...details] = {
+      money: [money(b.cost), `+ ${money(b.tax)} налогов`, humanHours(b.hours)],
+      tax: [money(b.tax), `зарплаты ${money(b.cost)}`],
+      time: [humanHours(b.hours), money(b.cost)],
+    }[state.settings.metric];
+    els.chartTip.innerHTML = `${esc(b.label.full)}<br><strong>${esc(main)}</strong><br>${esc([plural(b.count, WORDS.meeting), ...details].join(' · '))}`;
     els.chartTip.hidden = false;
 
     els.chart.querySelectorAll('.bar.is-hover').forEach((r) => r.classList.remove('is-hover'));
@@ -987,7 +1053,7 @@
           <span class="shame__rank" aria-hidden="true">${isWorst ? '👑' : '💸'}</span>
           <div class="shame__main">
             <span class="shame__title">${esc(m.title)}${isWorst ? ' <small>(самая дорогая)</small>' : ''}</span>
-            <span class="shame__meta">${esc(when)} · ${esc(duration(m.durationMs))} · ${esc(humanHours(personHours(m)))}</span>
+            <span class="shame__meta">${esc(when)} · ${esc(duration(m.durationMs))} · ${esc(humanHours(personHours(m)))}${taxOf(m) > 0 ? ` · налоги +${esc(money(taxOf(m)))}` : ''}</span>
             <span class="shame__people">${esc(shown)}</span>
           </div>
           <span class="shame__cost">${esc(money(m.cost))}</span>

@@ -502,6 +502,28 @@ main {
 .burn__item strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(1rem, 2.6vw, 1.3rem); overflow-wrap: anywhere; }
 .burn__item small { color: var(--muted); }
 
+/* ---------- tax rate ---------- */
+
+.tax-row {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: auto 7rem;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  border: 2px dashed var(--ink);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  background: #fff0f7;
+}
+
+.tax-row__label { font-family: var(--font-display); font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
+
+.tax-row__field { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; justify-self: end; }
+.tax-row__field input { text-align: right; padding: 0.45rem 0.6rem; }
+
+.tax-row__hint { grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); }
+.tax-row__hint strong { color: var(--ink); }
+
 /* ---------- live view ---------- */
 
 .live__top {
@@ -581,15 +603,28 @@ main {
 .is-running .counter { animation: throb 1s ease-in-out infinite; }
 .is-paused .counter { color: #8b8b7a; text-shadow: none; }
 
+.tax-meter { margin-top: 1.25rem; }
+
+.counter--tax {
+  font-size: clamp(1.4rem, 5vw, 3rem);
+  /* Same shrink-to-fit as the main counter, but always smaller: it's the side dish. */
+  font-size: min(3rem, calc((100cqi - 2rem) / (var(--len, 9) * 0.86) * 0.72));
+  color: #ff9ccb;
+  text-shadow: 0 0 14px rgba(255, 92, 168, 0.5);
+  box-shadow: 5px 5px 0 var(--cyan);
+  padding: 0.35em 0.75rem;
+}
+.is-running .counter--tax { animation: none; }
+
 @keyframes throb {
   50% { text-shadow: 0 0 28px rgba(184, 240, 74, 0.95); }
 }
 
 .sticker {
-  position: absolute;
-  right: -0.6rem;
-  bottom: -1.4rem;
-  max-width: min(22rem, 80%);
+  position: relative;
+  width: fit-content;
+  max-width: min(24rem, 100%);
+  margin: 0.9rem -0.6rem -0.4rem auto;
   background: var(--pink);
   border: var(--border);
   border-radius: 12px;
@@ -702,6 +737,8 @@ main {
 .tile__label { font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; }
 .tile__money { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.3rem, 3vw, 1.9rem); overflow-wrap: anywhere; line-height: 1.1; }
 .tile__meta { font-size: 0.85rem; font-weight: 500; }
+.tile__tax { font-size: 0.85rem; font-weight: 700; }
+.tile__tax:empty { display: none; }
 
 /* ---------- chart ---------- */
 
@@ -923,7 +960,7 @@ main {
 
 .receipt__total,
 .receipt__row { display: flex; justify-content: space-between; gap: 1rem; }
-.receipt__total { font-weight: 700; font-size: 1.1rem; }
+.receipt__total { font-weight: 700; font-size: 1.1rem; margin-top: 0.5rem; padding-top: 0.4rem; border-top: 2px solid var(--ink); }
 .receipt__row { margin-top: 0.3rem; }
 
 .receipt__equiv { list-style: none; margin: 0.4rem 0 0; padding: 0; display: grid; gap: 0.2rem; }
@@ -1034,7 +1071,7 @@ main {
   .shame__rank { width: auto; font-size: 1.1rem; }
   .shame__main { flex-basis: calc(100% - 3rem); }
   .shame__cost { margin-left: auto; }
-  .sticker { position: relative; right: auto; bottom: auto; width: fit-content; max-width: 100%; margin: 0.9rem 0 -0.8rem auto; }
+  .sticker { margin-right: 0; }
 }
 
 @media (max-width: 380px) {

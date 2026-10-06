@@ -82,6 +82,15 @@
           <div class="burn__item"><span>Заложники</span><strong id="preview-count">0</strong><small id="preview-count-note">человек</small></div>
         </div>
 
+        <div class="tax-row">
+          <label class="tax-row__label" for="tax-rate">🏛️ Налоги сверху</label>
+          <div class="tax-row__field">
+            <input id="tax-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="tax-hint tax-preview">
+            <span aria-hidden="true">%</span>
+          </div>
+          <p class="tax-row__hint"><span id="tax-hint">Страховые взносы работодателя: 30% + 0,2% «на травматизм» (у IT-аккредитованных — 7,6%). Зарплаты вводите «грязными», до НДФЛ. Налоги считаются отдельным счётчиком и в основной не входят.</span> <strong id="tax-preview"></strong></p>
+        </div>
+
         <button type="button" id="start-btn" class="btn btn--start" disabled>🔥 Начать жечь деньги</button>
       </article>
 
@@ -96,6 +105,10 @@
           <p class="meter__label">Сожжено денег на данный момент</p>
           <output class="counter" id="counter" aria-live="off">0,00 ₽</output>
           <p class="sticker" id="sticker" hidden></p>
+          <div class="tax-meter" id="tax-meter">
+            <p class="meter__label">🏛️ Отдельно: налоги и взносы сверху (<span id="tax-rate-label">30,2%</span>) — государство тоже на созвоне</p>
+            <output class="counter counter--tax" id="tax-counter" aria-live="off">0,00 ₽</output>
+          </div>
         </div>
 
         <div class="live__stats">
@@ -127,10 +140,10 @@
     <section class="section" aria-labelledby="damage-title">
       <h2 class="section__title" id="damage-title">📉 Отчёт об ущербе</h2>
       <div class="tiles">
-        <div class="tile tile--pink" id="tile-today"><span class="tile__label">Сегодня</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--yellow" id="tile-week"><span class="tile__label">Эта неделя</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--cyan" id="tile-month"><span class="tile__label">Этот месяц</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
-        <div class="tile tile--lime" id="tile-all"><span class="tile__label">За всё время (жуть)</span><strong class="tile__money"></strong><span class="tile__meta"></span></div>
+        <div class="tile tile--pink" id="tile-today"><span class="tile__label">Сегодня</span><strong class="tile__money"></strong><span class="tile__tax"></span><span class="tile__meta"></span></div>
+        <div class="tile tile--yellow" id="tile-week"><span class="tile__label">Эта неделя</span><strong class="tile__money"></strong><span class="tile__tax"></span><span class="tile__meta"></span></div>
+        <div class="tile tile--cyan" id="tile-month"><span class="tile__label">Этот месяц</span><strong class="tile__money"></strong><span class="tile__tax"></span><span class="tile__meta"></span></div>
+        <div class="tile tile--lime" id="tile-all"><span class="tile__label">За всё время (жуть)</span><strong class="tile__money"></strong><span class="tile__tax"></span><span class="tile__meta"></span></div>
       </div>
 
       <div class="card card--chart">
@@ -142,7 +155,8 @@
           </div>
           <div class="seg" role="group" aria-label="Что считаем">
             <button type="button" data-metric="money">💰 Деньги</button>
-            <button type="button" data-metric="time">⏱ Человеко-часы</button>
+            <button type="button" data-metric="tax">🏛️ Налоги</button>
+            <button type="button" data-metric="time">⏱ Чел.-часы</button>
           </div>
         </div>
         <h3 class="chart__title" id="chart-title"></h3>
@@ -154,7 +168,7 @@
           <summary>Показать сырые цифры</summary>
           <div class="table-wrap">
             <table>
-              <thead><tr><th scope="col">Период</th><th scope="col">Встреч</th><th scope="col">Сожжено</th><th scope="col">Человеко-часы</th></tr></thead>
+              <thead><tr><th scope="col">Период</th><th scope="col">Встреч</th><th scope="col">Сожжено</th><th scope="col">Налоги</th><th scope="col">Человеко-часы</th></tr></thead>
               <tbody id="chart-table"></tbody>
             </table>
           </div>
@@ -175,6 +189,7 @@
 
   <footer class="footer">
     <p><strong>Как считаем:</strong> месячная зарплата ÷ 173,3 рабочих часа (годовая ÷ 2080) = стоимость часа каждого участника. Складываем всех, умножаем на время, ушедшее на «синхронизацию». Плачем.</p>
+    <p><strong>Налоги</strong> — отдельный счётчик: страховые взносы, которые компания платит сверху зарплаты (по умолчанию 30,2%, ставку можно поменять). НДФЛ уже сидит внутри «грязной» зарплаты, поэтому второй раз его не считаем.</p>
     <p>Всё хранится в localStorage вашего браузера. Данные никуда не уходят с этого устройства — в отличие от вашей воли к жизни на квартальном планировании.</p>
   </footer>
 
@@ -190,10 +205,12 @@
         <tbody id="r-lines"></tbody>
       </table>
       <hr>
-      <div class="receipt__total"><span>ИТОГО СОЖЖЕНО</span><strong id="r-total"></strong></div>
+      <div class="receipt__row"><span>Сожжено на зарплаты</span><span id="r-salaries"></span></div>
+      <div class="receipt__row" id="r-tax-row"><span id="r-tax-label">Налоги и взносы</span><span id="r-tax"></span></div>
+      <div class="receipt__total"><span>ИТОГО ДЛЯ КОМПАНИИ</span><strong id="r-total"></strong></div>
       <div class="receipt__row"><span>Потеряно человеко-часов</span><span id="r-hours"></span></div>
       <hr>
-      <p class="receipt__small">НА ЭТИ ДЕНЬГИ МОЖНО БЫЛО КУПИТЬ:</p>
+      <p class="receipt__small">НА ЭТИ ЗАРПЛАТЫ МОЖНО БЫЛО КУПИТЬ:</p>
       <ul class="receipt__equiv" id="r-equiv"></ul>
       <hr>
       <p class="receipt__verdict" id="r-verdict"></p>
