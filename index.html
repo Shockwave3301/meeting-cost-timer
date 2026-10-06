@@ -62,7 +62,7 @@
         </div>
 
         <h3 class="sub"><span class="badge badge--cyan">Шаг 2</span> Собираем жертв</h3>
-        <form id="add-person" class="add-person" autocomplete="off">
+        <form id="add-person" class="add-person" autocomplete="off" novalidate>
           <input name="name" type="text" placeholder="Имя, напр. Дима" maxlength="40" required aria-label="Имя участника">
           <input name="salary" type="number" min="0" step="any" inputmode="decimal" placeholder="Зарплата" required aria-label="Зарплата">
           <select name="unit" aria-label="За какой период зарплата">
@@ -202,6 +202,17 @@
     </div>
     <form method="dialog" class="receipt__actions">
       <button class="btn btn--start" value="close">Мне стыдно 😔</button>
+    </form>
+  </dialog>
+
+  <dialog id="ask" class="ask-dialog" aria-labelledby="ask-text">
+    <form method="dialog" class="ask">
+      <p class="ask__emoji" aria-hidden="true">🤔</p>
+      <p class="ask__text" id="ask-text"></p>
+      <div class="ask__actions">
+        <button class="btn" value="cancel">Не надо</button>
+        <button class="btn btn--danger" value="ok" id="ask-ok">Да</button>
+      </div>
     </form>
   </dialog>
 

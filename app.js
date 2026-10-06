@@ -164,6 +164,7 @@
   const esc = (s) =>
     String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const PAGE_TITLE = document.title;
 
   const hourlyOf = (p) => (Number.isFinite(p.hourly) ? p.hourly : p.salary / HOURS_PER[p.unit]);
   const burnPerHour = (people) => people.reduce((sum, p) => sum + hourlyOf(p), 0);
@@ -297,6 +298,9 @@
     nuke: $('nuke-btn'),
     more: $('more-btn'),
     receipt: $('receipt'),
+    ask: $('ask'),
+    askText: $('ask-text'),
+    askOk: $('ask-ok'),
     rain: $('rain'),
   };
 
@@ -385,27 +389,33 @@
     save.draft();
   });
 
+  // The form is `novalidate`: the browser's own messages come in the browser's language,
+  // so we validate here and show our own (Russian) text in the native bubble.
+  function complain(input, message) {
+    input.setCustomValidity(message);
+    input.reportValidity();
+  }
+
   els.addForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const form = els.addForm;
-    const name = form.elements.name.value.trim().replace(/\s+/g, ' ');
-    const salary = parseFloat(form.elements.salary.value);
-    const unit = form.elements.unit.value;
-    if (!name) return form.elements.name.focus();
-    if (!Number.isFinite(salary) || salary <= 0) {
-      form.elements.salary.setCustomValidity('Всем что-то платят. Даже стажёрам. (Обычно.)');
-      form.elements.salary.reportValidity();
-      return;
-    }
-    const person = { name, salary, unit };
+    const { name: nameInput, salary: salaryInput, unit: unitInput } = els.addForm.elements;
+    const name = nameInput.value.trim().replace(/\s+/g, ' ');
+    const salary = parseFloat(salaryInput.value);
+    if (!name) return complain(nameInput, 'Как зовут жертву? Анонимов на созвоны не зовём.');
+    if (salaryInput.validity.badInput) return complain(salaryInput, 'Это не похоже на число.');
+    if (salaryInput.value === '') return complain(salaryInput, 'Сколько получает? Без зарплаты ущерб не посчитать.');
+    if (!Number.isFinite(salary) || salary <= 0) return complain(salaryInput, 'Всем что-то платят. Даже стажёрам. (Обычно.)');
+    const person = { name, salary, unit: unitInput.value };
     rememberPerson(person);
     addToDraft(person);
-    form.elements.name.value = '';
-    form.elements.salary.value = '';
-    form.elements.name.focus();
+    nameInput.value = '';
+    salaryInput.value = '';
+    nameInput.focus();
   });
 
-  els.addForm.elements.salary.addEventListener('input', (e) => e.target.setCustomValidity(''));
+  for (const input of [els.addForm.elements.name, els.addForm.elements.salary]) {
+    input.addEventListener('input', () => input.setCustomValidity(''));
+  }
 
   els.attendees.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-remove]');
@@ -416,7 +426,7 @@
     renderRoster();
   });
 
-  els.roster.addEventListener('click', (e) => {
+  els.roster.addEventListener('click', async (e) => {
     const add = e.target.closest('[data-add]');
     const forget = e.target.closest('[data-forget]');
     if (add) {
@@ -424,7 +434,7 @@
       if (p) addToDraft(p, { flash: false });
     } else if (forget) {
       const p = state.roster.find((r) => r.id === forget.dataset.forget);
-      if (!p || !confirm(`Забыть «${p.name}» навсегда? Никто не узнает. Наверное.`)) return;
+      if (!p || !(await ask(`Забыть «${p.name}» навсегда? Никто не узнает. Наверное.`, 'Забыть'))) return;
       state.roster = state.roster.filter((r) => r.id !== p.id);
       save.roster();
       renderRoster();
@@ -498,10 +508,10 @@
     showReceipt(meeting);
   }
 
-  function discardMeeting() {
+  async function discardMeeting() {
     if (!state.active) return;
-    if (!confirm('Отменить встречу без сохранения? Деньги всё равно потрачены — просто не будем об этом.')) return;
-    leaveLive();
+    if (!(await ask('Отменить встречу без сохранения? Деньги всё равно потрачены — просто не будем об этом.', 'Отменить встречу'))) return;
+    if (state.active) leaveLive();
   }
 
   function leaveLive() {
@@ -512,7 +522,7 @@
     cancelAnimationFrame(rafId);
     clearInterval(titleTimer);
     clearInterval(quipTimer);
-    document.title = 'Meeting Cost Timer 💸';
+    document.title = PAGE_TITLE;
     els.stage.classList.remove('is-live', 'is-running', 'is-paused');
     els.liveView.hidden = true;
     els.setupView.hidden = false;
@@ -648,8 +658,20 @@
   els.discard.addEventListener('click', discardMeeting);
 
   /* ==========================================================
-     Receipt
+     Dialogs: confirmations & the receipt
      ========================================================== */
+
+  // A Russian stand-in for confirm(), whose title and OK/Cancel buttons follow the browser's language.
+  function ask(text, okLabel) {
+    if (typeof els.ask.showModal !== 'function') return Promise.resolve(confirm(text));
+    els.askText.textContent = text;
+    els.askOk.textContent = okLabel;
+    els.ask.returnValue = '';
+    els.ask.showModal();
+    return new Promise((resolve) => {
+      els.ask.addEventListener('close', () => resolve(els.ask.returnValue === 'ok'), { once: true });
+    });
+  }
 
   function showReceipt(m) {
     const started = new Date(m.startedAt);
@@ -676,10 +698,12 @@
     else els.receipt.setAttribute('open', '');
   }
 
-  // Clicking the pink backdrop also closes the receipt.
-  els.receipt.addEventListener('click', (e) => {
-    if (e.target === els.receipt) els.receipt.close();
-  });
+  // Clicking the backdrop closes a dialog (and, for confirmations, counts as "no").
+  for (const dialog of [els.receipt, els.ask]) {
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
 
   /* ==========================================================
      Stats: tiles, chart, history
@@ -983,18 +1007,18 @@
     renderHistory();
   });
 
-  els.history.addEventListener('click', (e) => {
+  els.history.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-delete]');
     if (!btn) return;
     const m = state.meetings.find((x) => x.id === btn.dataset.delete);
-    if (!m || !confirm(`Удалить «${m.title}» с доски позора? Заметаем следы?`)) return;
+    if (!m || !(await ask(`Удалить «${m.title}» с доски позора? Заметаем следы?`, 'Удалить'))) return;
     state.meetings = state.meetings.filter((x) => x !== m);
     save.meetings();
     renderStats();
   });
 
-  els.nuke.addEventListener('click', () => {
-    if (!confirm('Удалить ВСЮ историю встреч? Сохранённые участники останутся. Это нельзя отменить (в отличие от приглашений в календаре).')) return;
+  els.nuke.addEventListener('click', async () => {
+    if (!(await ask('Удалить ВСЮ историю встреч? Сохранённые участники останутся. Это нельзя отменить (в отличие от приглашений в календаре).', '☢️ Сжечь всё'))) return;
     state.meetings = [];
     save.meetings();
     renderStats();
